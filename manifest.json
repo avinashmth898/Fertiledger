@@ -2,7 +2,7 @@
   "name": "FertiLedger — Fertilizer Shop",
   "short_name": "FertiLedger",
   "description": "Fertilizer retail shop ledger — vendor management, purchases, payments, reports",
-  "start_url": "/index.html",
+  "start_url": "/Fertiledger/index.html",
   "display": "standalone",
   "background_color": "#f0faf4",
   "theme_color": "#1a6b3a",
