@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#1a6b3a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="FertiLedger"/>
+<title>FertiLedger — Fertilizer Shop</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+/* ═══════════════════════════════════════════════════════
+   RESET & ROOT
+═══════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green:#1a6b3a;--green2:#2e8b57;--green3:#e8f5ed;--green4:#c8e6c9;
+  --amber:#f59e0b;--amber2:#fef3c7;
+  --red:#dc2626;--red2:#fee2e2;
+  --blue:#1d4ed8;--blue2:#dbeafe;
+  --text:#111827;--text2:#6b7280;--text3:#9ca3af;
+  --bg:#f0faf4;--card:#ffffff;--border:#d1fae5;
+  --shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1);
+  --radius:12px;--radius-sm:8px;
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ═══════════════════════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════════════════════ */
+.topbar{
+  background:var(--green);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;position:sticky;top:0;z-index:200;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-logo{font-size:22px}
+.topbar-title{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.topbar-sub{font-size:11px;opacity:.8}
+.topbar-actions{display:flex;gap:8px}
+.icon-btn{background:rgba(255,255,255,.15);border:none;color:#fff;
+  width:36px;height:36px;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  transition:background .2s}
+.icon-btn:active{background:rgba(255,255,255,.3)}
+
+/* ═══════════════════════════════════════════════════════
+   BOTTOM NAV
+═══════════════════════════════════════════════════════ */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#fff;border-top:1px solid #e5e7eb;
+  display:flex;z-index:200;
+  box-shadow:0 -2px 8px rgba(0,0,0,.08);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:8px 4px 6px;cursor:pointer;border:none;background:none;
+  color:var(--text3);font-size:10px;font-weight:500;
+  transition:color .2s;gap:3px;
+}
+.nav-item.active{color:var(--green)}
+.nav-item svg{width:22px;height:22px}
+.nav-badge{
+  position:absolute;top:4px;right:calc(50% - 18px);
+  background:var(--red);color:#fff;font-size:9px;
+  min-width:16px;height:16px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 3px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PAGES
+═══════════════════════════════════════════════════════ */
+.page{display:none;padding:16px 16px 90px;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ═══════════════════════════════════════════════════════
+   CARDS & SECTIONS
+═══════════════════════════════════════════════════════ */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.card-header{padding:14px 16px 10px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:15px;font-weight:700;color:var(--text)}
+.card-body{padding:14px 16px}
+.section-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px}
+
+/* ═══════════════════════════════════════════════════════
+   STAT GRID
+═══════════════════════════════════════════════════════ */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{
+  background:var(--card);border-radius:var(--radius);
+  padding:14px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:4px;
+}
+.stat-label{font-size:11px;color:var(--text2);font-weight:500}
+.stat-value{font-size:20px;font-weight:800;color:var(--text)}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-value.amber{color:var(--amber)}
+.stat-sub{font-size:11px;color:var(--text3)}
+
+/* ═══════════════════════════════════════════════════════
+   FORMS
+═══════════════════════════════════════════════════════ */
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:11px 13px;border:1.5px solid #e5e7eb;
+  border-radius:var(--radius-sm);font-size:15px;color:var(--text);
+  background:#fff;transition:border-color .2s,box-shadow .2s;
+  font-family:var(--font);appearance:none;-webkit-appearance:none;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  outline:none;border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(26,107,58,.12);
+}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.5}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-hint{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ═══════════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:12px 20px;border-radius:var(--radius-sm);font-size:14px;
+  font-weight:600;border:none;cursor:pointer;transition:all .15s;
+  font-family:var(--font);text-decoration:none;white-space:nowrap;
+}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--green);color:#fff;width:100%}
+.btn-primary:hover{background:var(--green2)}
+.btn-secondary{background:#f3f4f6;color:var(--text)}
+.btn-secondary:hover{background:#e5e7eb}
+.btn-danger{background:var(--red2);color:var(--red)}
+.btn-amber{background:var(--amber2);color:#92400e}
+.btn-blue{background:var(--blue2);color:var(--blue)}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:6px}
+.btn-block{width:100%}
+.btn-group{display:flex;gap:8px}
+
+/* ═══════════════════════════════════════════════════════
+   LEDGER ENTRIES
+═══════════════════════════════════════════════════════ */
+.entry-list{display:flex;flex-direction:column;gap:8px}
+.entry-item{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;
+  border-left:4px solid var(--green);
+}
+.entry-item.credit{border-left-color:var(--red)}
+.entry-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  padding:12px 14px 8px;
+}
+.entry-vendor{font-size:14px;font-weight:700;color:var(--text)}
+.entry-receipt{font-size:11px;color:var(--text3);margin-top:1px}
+.entry-amount{font-size:16px;font-weight:800;color:var(--green);text-align:right}
+.entry-amount.credit{color:var(--red)}
+.entry-amount-label{font-size:10px;color:var(--text3);text-align:right}
+.entry-body{padding:0 14px 10px;border-top:1px solid #f9fafb}
+.entry-desc{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.4}
+.entry-meta{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.entry-tag{
+  font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;
+}
+.tag-debit{background:var(--green3);color:var(--green)}
+.tag-credit{background:var(--red2);color:var(--red)}
+.entry-date{font-size:11px;color:var(--text3);margin-left:auto}
+.entry-actions{display:flex;gap:6px;padding:0 14px 10px}
+
+/* ═══════════════════════════════════════════════════════
+   VENDOR CARDS
+═══════════════════════════════════════════════════════ */
+.vendor-card{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:14px 16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:box-shadow .2s;margin-bottom:10px;
+}
+.vendor-card:active{box-shadow:var(--shadow-lg)}
+.vendor-avatar{
+  width:44px;height:44px;border-radius:22px;
+  background:var(--green);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;flex-shrink:0;
+}
+.vendor-info{flex:1;min-width:0}
+.vendor-name{font-size:15px;font-weight:700;color:var(--text)}
+.vendor-phone{font-size:12px;color:var(--text3)}
+.vendor-balance{text-align:right}
+.vendor-bal-label{font-size:10px;color:var(--text3)}
+.vendor-bal-val{font-size:15px;font-weight:800}
+.bal-positive{color:var(--green)}
+.bal-negative{color:var(--red)}
+.bal-zero{color:var(--text3)}
+
+/* ═══════════════════════════════════════════════════════
+   SEARCH BAR
+═══════════════════════════════════════════════════════ */
+.search-wrap{position:relative;margin-bottom:12px}
+.search-input{
+  width:100%;padding:10px 14px 10px 38px;
+  border:1.5px solid #e5e7eb;border-radius:var(--radius-sm);
+  font-size:14px;background:#fff;font-family:var(--font);
+  transition:border-color .2s;
+}
+.search-input:focus{outline:none;border-color:var(--green)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px}
+
+/* ═══════════════════════════════════════════════════════
+   FILTER CHIPS
+═══════════════════════════════════════════════════════ */
+.chip-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:12px;
+  font-weight:600;border:1.5px solid #e5e7eb;background:#fff;
+  cursor:pointer;transition:all .15s;color:var(--text2);
+}
+.chip.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* ═══════════════════════════════════════════════════════
+   FAB
+═══════════════════════════════════════════════════════ */
+.fab{
+  position:fixed;bottom:72px;right:18px;
+  width:56px;height:56px;border-radius:28px;
+  background:var(--green);color:#fff;border:none;
+  font-size:26px;cursor:pointer;z-index:100;
+  box-shadow:0 4px 14px rgba(26,107,58,.45);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,background .2s;
+}
+.fab:active{transform:scale(.93);background:var(--green2)}
+
+/* ═══════════════════════════════════════════════════════
+   MODAL / DRAWER
+═══════════════════════════════════════════════════════ */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:300;
+  align-items:flex-end;
+}
+.overlay.open{display:flex}
+.drawer{
+  width:100%;background:#fff;border-radius:20px 20px 0 0;
+  max-height:92vh;overflow-y:auto;
+  animation:slideUp .25s ease;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+.drawer-handle{width:36px;height:4px;background:#e5e7eb;border-radius:2px;margin:12px auto 4px}
+.drawer-header{padding:4px 18px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f3f4f6}
+.drawer-title{font-size:17px;font-weight:800;color:var(--text)}
+.drawer-close{background:none;border:none;font-size:22px;color:var(--text3);cursor:pointer;padding:4px}
+.drawer-body{padding:16px 18px 24px}
+
+/* ═══════════════════════════════════════════════════════
+   DIALOG (Confirm)
+═══════════════════════════════════════════════════════ */
+.dialog-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);z-index:400;
+  align-items:center;justify-content:center;padding:20px;
+}
+.dialog-overlay.open{display:flex}
+.dialog{
+  background:#fff;border-radius:var(--radius);
+  padding:22px;max-width:320px;width:100%;
+  box-shadow:var(--shadow-lg);
+  animation:popIn .2s ease;
+}
+@keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.dialog-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.dialog-body{font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.5}
+.dialog-actions{display:flex;gap:10px}
+
+/* ═══════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:#1f2937;color:#fff;padding:10px 20px;border-radius:20px;
+  font-size:13px;font-weight:500;z-index:500;opacity:0;
+  transition:all .3s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══════════════════════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════════════════════ */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:4px}
+.empty-desc{font-size:13px}
+
+/* ═══════════════════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════════════════ */
+.divider{height:1px;background:#f3f4f6;margin:12px 0}
+.section-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:12px}
+
+/* ═══════════════════════════════════════════════════════
+   SUMMARY TABLE
+═══════════════════════════════════════════════════════ */
+.sum-table{width:100%;border-collapse:collapse;font-size:13px}
+.sum-table th{background:var(--green3);color:var(--green);font-size:11px;font-weight:700;text-transform:uppercase;padding:8px 10px;text-align:left}
+.sum-table td{padding:9px 10px;border-bottom:1px solid #f3f4f6;color:var(--text)}
+.sum-table tr:last-child td{border:none}
+.sum-table tr:nth-child(even) td{background:#fafafa}
+.amount-col{font-weight:700;text-align:right}
+.positive{color:var(--green)}
+.negative{color:var(--red)}
+
+/* ═══════════════════════════════════════════════════════
+   DATE RANGE PICKER
+═══════════════════════════════════════════════════════ */
+.date-range{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.date-range input{flex:1;padding:9px 11px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:var(--font)}
+.date-range input:focus{outline:none;border-color:var(--green)}
+.date-sep{color:var(--text3);font-size:12px}
+
+/* ═══════════════════════════════════════════════════════
+   REPORT MONTH CARD
+═══════════════════════════════════════════════════════ */
+.month-card{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden;
+}
+.month-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:12px 14px;background:var(--green3);cursor:pointer;
+}
+.month-name{font-size:14px;font-weight:700;color:var(--green)}
+.month-stats{text-align:right}
+.month-total{font-size:13px;font-weight:700;color:var(--text)}
+.month-count{font-size:11px;color:var(--text3)}
+.month-body{display:none;padding:0}
+.month-body.open{display:block}
+
+/* ═══════════════════════════════════════════════════════
+   PRINT RECEIPT
+═══════════════════════════════════════════════════════ */
+@media print{
+  .no-print{display:none!important}
+  .print-only{display:block!important}
+  body{background:#fff;font-size:12px}
+  .receipt-print{
+    max-width:320px;margin:0 auto;padding:10px;
+    font-family:'Courier New',monospace;
+  }
+  .r-center{text-align:center}
+  .r-bold{font-weight:700}
+  .r-line{border-top:1px dashed #000;margin:6px 0}
+  .r-row{display:flex;justify-content:space-between}
+}
+.print-only{display:none}
+
+/* ═══════════════════════════════════════════════════════
+   MISC
+═══════════════════════════════════════════════════════ */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green3);color:var(--green)}
+.badge-red{background:var(--red2);color:var(--red)}
+.badge-amber{background:var(--amber2);color:#92400e}
+.text-right{text-align:right}
+.text-center{text-align:center}
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+.fw-bold{font-weight:700}
+.text-sm{font-size:13px;color:var(--text2)}
+.highlight-box{background:var(--green3);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px}
+.highlight-box.amber{background:var(--amber2)}
+.highlight-box.red{background:var(--red2)}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ TOP BAR ═══════════════ -->
+<div class="topbar no-print">
+  <div class="topbar-left">
+    <span class="topbar-logo">🌱</span>
+    <div>
+      <div class="topbar-title" id="shopNameDisplay">FertiLedger</div>
+      <div class="topbar-sub" id="shopTagDisplay">Fertilizer Shop Ledger</div>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+    <button class="icon-btn" onclick="exportData()" title="Export">📤</button>
+  </div>
+</div>
+
+<!-- ═══════════════ PAGES ═══════════════ -->
+
+<!-- DASHBOARD PAGE -->
+<div class="page active" id="page-dashboard">
+  <div class="section-label">Overview</div>
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Purchases</div>
+      <div class="stat-value green" id="dash-total">₹0</div>
+      <div class="stat-sub" id="dash-entries">0 entries</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Outstanding Balance</div>
+      <div class="stat-value red" id="dash-balance">₹0</div>
+      <div class="stat-sub" id="dash-vendors-count">0 vendors</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">This Month</div>
+      <div class="stat-value amber" id="dash-month">₹0</div>
+      <div class="stat-sub" id="dash-month-label">-</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Vendors</div>
+      <div class="stat-value" id="dash-active-vendors">0</div>
+      <div class="stat-sub">registered</div>
+    </div>
+  </div>
+
+  <div class="section-label">Recent Entries</div>
+  <div id="dash-recent-list">
+    <div class="empty">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">No entries yet</div>
+      <div class="empty-desc">Tap + to add your first purchase entry</div>
+    </div>
+  </div>
+
+  <div class="section-label">Vendor Balances</div>
+  <div id="dash-vendor-balances"></div>
+</div>
+
+<!-- LEDGER PAGE -->
+<div class="page" id="page-ledger">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" id="ledger-search" placeholder="Search by vendor, product, receipt..." oninput="renderLedger()"/>
+  </div>
+
+  <div class="chip-row" id="vendor-filter-chips">
+    <div class="chip active" data-vendor="all" onclick="setVendorFilter('all',this)">All Vendors</div>
+  </div>
+
+  <div class="date-range">
+    <input type="date" id="filter-from" onchange="renderLedger()"/>
+    <span class="date-sep">to</span>
+    <input type="date" id="filter-to" onchange="renderLedger()"/>
+    <button class="btn btn-secondary btn-sm" onclick="clearDateFilter()">Clear</button>
+  </div>
+
+  <div class="chip-row">
+    <div class="chip active" data-type="all" onclick="setTypeFilter('all',this)">All</div>
+    <div class="chip" data-type="debit" onclick="setTypeFilter('debit',this)">Purchase (Dr)</div>
+    <div class="chip" data-type="credit" onclick="setTypeFilter('credit',this)">Payment (Cr)</div>
+  </div>
+
+  <div id="ledger-summary" class="highlight-box" style="display:none"></div>
+  <div id="ledger-list" class="entry-list"></div>
+</div>
+
+<!-- VENDORS PAGE -->
+<div class="page" id="page-vendors">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" id="vendor-search" placeholder="Search vendors..." oninput="renderVendors()"/>
+  </div>
+  <div id="vendors-list"></div>
+</div>
+
+<!-- REPORTS PAGE -->
+<div class="page" id="page-reports">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Monthly Summary</div>
+    </div>
+    <div class="card-body">
+      <div id="monthly-report"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Vendor-wise Summary</div>
+    </div>
+    <div class="card-body">
+      <div id="vendor-report"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">Product-wise Summary</div>
+    </div>
+    <div class="card-body">
+      <div id="product-report"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ BOTTOM NAV ═══════════════ -->
+<nav class="bottom-nav no-print">
+  <button class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Dashboard
+  </button>
+  <button class="nav-item" id="nav-ledger" onclick="showPage('ledger')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    Ledger
+  </button>
+  <button class="nav-item" id="nav-vendors" onclick="showPage('vendors')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    Vendors
+  </button>
+  <button class="nav-item" id="nav-reports" onclick="showPage('reports')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Reports
+  </button>
+</nav>
+
+<!-- FAB -->
+<button class="fab no-print" onclick="openAddEntry()" title="Add Entry">+</button>
+
+<!-- ═══════════════ DRAWERS ═══════════════ -->
+
+<!-- ADD/EDIT ENTRY DRAWER -->
+<div class="overlay" id="overlay-entry" onclick="closeEntryDrawer(event)">
+  <div class="drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-title" id="entry-drawer-title">New Entry</div>
+      <button class="drawer-close" onclick="closeDrawer('overlay-entry')">✕</button>
+    </div>
+    <div class="drawer-body">
+      <input type="hidden" id="entry-id"/>
+      <div class="form-group">
+        <label class="form-label">Entry Type</label>
+        <div class="btn-group">
+          <button class="btn btn-primary btn-sm" id="type-debit" onclick="setEntryType('debit')" style="flex:1">📦 Purchase (Debit)</button>
+          <button class="btn btn-secondary btn-sm" id="type-credit" onclick="setEntryType('credit')" style="flex:1">💰 Payment (Credit)</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Vendor *</label>
+        <select class="form-select" id="entry-vendor" required>
+          <option value="">Select vendor...</option>
+        </select>
+        <div class="form-hint">Need a new vendor? <span style="color:var(--green);cursor:pointer;font-weight:600" onclick="quickAddVendor()">+ Add quickly</span></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Amount (₹) *</label>
+          <input type="number" class="form-input" id="entry-amount" placeholder="0.00" step="0.01" min="0" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date *</label>
+          <input type="date" class="form-input" id="entry-date" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Receipt / Bill Number *</label>
+        <input type="text" class="form-input" id="entry-receipt" placeholder="e.g. RCP-001, BILL-2024-01"/>
+      </div>
+      <div class="form-group" id="product-group">
+        <label class="form-label">Product Description *</label>
+        <textarea class="form-textarea" id="entry-desc" placeholder="e.g. DAP 50kg × 10 bags, Urea 45kg × 5 bags..."></textarea>
+      </div>
+      <div class="form-group" id="payment-group" style="display:none">
+        <label class="form-label">Payment Notes</label>
+        <textarea class="form-textarea" id="entry-payment-notes" placeholder="e.g. Paid via NEFT, cheque no. 123456..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Notes</label>
+        <input type="text" class="form-input" id="entry-notes" placeholder="Any extra info..."/>
+      </div>
+      <div class="btn-group mt-12">
+        <button class="btn btn-secondary" style="flex:1" onclick="closeDrawer('overlay-entry')">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveEntry()">Save Entry</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT VENDOR DRAWER -->
+<div class="overlay" id="overlay-vendor" onclick="closeEntryDrawer(event)">
+  <div class="drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-title" id="vendor-drawer-title">Add Vendor</div>
+      <button class="drawer-close" onclick="closeDrawer('overlay-vendor')">✕</button>
+    </div>
+    <div class="drawer-body">
+      <input type="hidden" id="vendor-id"/>
+      <div class="form-group">
+        <label class="form-label">Vendor / Company Name *</label>
+        <input type="text" class="form-input" id="vendor-name" placeholder="e.g. Shree Agro Suppliers"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Contact Person</label>
+          <input type="text" class="form-input" id="vendor-contact" placeholder="Name"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" class="form-input" id="vendor-phone" placeholder="9876543210"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Products Supplied</label>
+        <input type="text" class="form-input" id="vendor-products" placeholder="e.g. DAP, Urea, NPK, Potash"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        <textarea class="form-textarea" id="vendor-address" placeholder="Vendor address..." style="min-height:60px"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">GST Number</label>
+        <input type="text" class="form-input" id="vendor-gst" placeholder="GST/TIN number"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="vendor-notes" placeholder="Any notes about this vendor..."/>
+      </div>
+      <div class="btn-group mt-12">
+        <button class="btn btn-secondary" style="flex:1" onclick="closeDrawer('overlay-vendor')">Cancel</button>
+        <button class="btn btn-primary" style="flex:1" onclick="saveVendor()">Save Vendor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VENDOR DETAIL DRAWER -->
+<div class="overlay" id="overlay-vendor-detail">
+  <div class="drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-title" id="vd-title">Vendor Details</div>
+      <button class="drawer-close" onclick="closeDrawer('overlay-vendor-detail')">✕</button>
+    </div>
+    <div class="drawer-body" id="vd-body"></div>
+  </div>
+</div>
+
+<!-- ENTRY DETAIL / RECEIPT DRAWER -->
+<div class="overlay" id="overlay-receipt">
+  <div class="drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-title">Entry Receipt</div>
+      <button class="drawer-close" onclick="closeDrawer('overlay-receipt')">✕</button>
+    </div>
+    <div class="drawer-body" id="receipt-body"></div>
+  </div>
+</div>
+
+<!-- SETTINGS DRAWER -->
+<div class="overlay" id="overlay-settings">
+  <div class="drawer">
+    <div class="drawer-handle"></div>
+    <div class="drawer-header">
+      <div class="drawer-title">Settings</div>
+      <button class="drawer-close" onclick="closeDrawer('overlay-settings')">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="form-group">
+        <label class="form-label">Shop Name</label>
+        <input type="text" class="form-input" id="settings-shop-name" placeholder="Your Shop Name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Owner Name</label>
+        <input type="text" class="form-input" id="settings-owner" placeholder="Owner / Manager Name"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" class="form-input" id="settings-phone" placeholder="Shop phone number"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        <textarea class="form-textarea" id="settings-address" placeholder="Shop address..." style="min-height:60px"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">GST Number</label>
+        <input type="text" class="form-input" id="settings-gst" placeholder="GST Number"/>
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      <div class="divider"></div>
+      <div class="section-label" style="margin-top:0">Data Management</div>
+      <div class="btn-group">
+        <button class="btn btn-blue btn-sm" style="flex:1" onclick="exportData()">📤 Export JSON</button>
+        <button class="btn btn-secondary btn-sm" style="flex:1" onclick="importData()">📥 Import JSON</button>
+      </div>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)"/>
+      <div class="divider"></div>
+      <button class="btn btn-danger btn-sm" onclick="confirmClearAll()">🗑 Clear All Data</button>
+      <div class="text-sm mt-8">App version 1.0 | Offline PWA | Data stored locally</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="dialog-overlay" id="dialog-confirm">
+  <div class="dialog">
+    <div class="dialog-title" id="dialog-title">Confirm</div>
+    <div class="dialog-body" id="dialog-body">Are you sure?</div>
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeDialog()">Cancel</button>
+      <button class="btn btn-danger" style="flex:1" id="dialog-ok-btn" onclick="dialogCallback()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- PRINT RECEIPT (hidden, shown during print) -->
+<div class="print-only receipt-print" id="print-area"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DATA LAYER
+// ═══════════════════════════════════════════════════════════════════
+const DB_KEY = 'fertiledger_v2';
+
+function loadDB() {
+  try {
+    return JSON.parse(localStorage.getItem(DB_KEY)) || defaultDB();
+  } catch(e) { return defaultDB(); }
+}
+
+function defaultDB() {
+  return { vendors: [], entries: [], settings: { shopName: 'FertiLedger', owner: '', phone: '', address: '', gst: '' }, nextReceiptNum: 1 };
+}
+
+function saveDB(db) {
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+let db = loadDB();
+
+// ID generators
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+
+// ═══════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════
+let currentPage = 'dashboard';
+let currentVendorFilter = 'all';
+let currentTypeFilter = 'all';
+let deleteCallback = null;
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  currentPage = page;
+  if(page==='dashboard') renderDashboard();
+  if(page==='ledger') renderLedger();
+  if(page==='vendors') renderVendors();
+  if(page==='reports') renderReports();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FORMATTING HELPERS
+// ═══════════════════════════════════════════════════════════════════
+const fmt = n => '₹' + parseFloat(n||0).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtDate = d => { if(!d) return '-'; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); };
+const monthYear = d => { if(!d) return '-'; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-IN',{month:'long',year:'numeric'}); };
+const monthKey = d => d ? d.slice(0,7) : '';
+const initials = name => (name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+
+function vendorName(id) {
+  const v = db.vendors.find(v=>v.id===id);
+  return v ? v.name : 'Unknown Vendor';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const entries = db.entries;
+  const thisMonth = new Date().toISOString().slice(0,7);
+  const totalPurchases = entries.filter(e=>e.type==='debit').reduce((s,e)=>s+parseFloat(e.amount),0);
+  const totalPayments  = entries.filter(e=>e.type==='credit').reduce((s,e)=>s+parseFloat(e.amount),0);
+  const monthEntries   = entries.filter(e=>monthKey(e.date)===thisMonth&&e.type==='debit');
+  const monthTotal     = monthEntries.reduce((s,e)=>s+parseFloat(e.amount),0);
+
+  // Per-vendor balance
+  const vendorBalance = {};
+  db.vendors.forEach(v=>{ vendorBalance[v.id]=0; });
+  entries.forEach(e=>{
+    if(!vendorBalance[e.vendorId]) vendorBalance[e.vendorId]=0;
+    vendorBalance[e.vendorId] += e.type==='debit' ? parseFloat(e.amount) : -parseFloat(e.amount);
+  });
+  const outstanding = Object.values(vendorBalance).filter(b=>b>0).reduce((s,b)=>s+b,0);
+
+  document.getElementById('dash-total').textContent = fmt(totalPurchases);
+  document.getElementById('dash-entries').textContent = entries.filter(e=>e.type==='debit').length + ' entries';
+  document.getElementById('dash-balance').textContent = fmt(outstanding);
+  document.getElementById('dash-vendors-count').textContent = 'to pay';
+  document.getElementById('dash-month').textContent = fmt(monthTotal);
+  document.getElementById('dash-month-label').textContent = monthYear(new Date().toISOString().slice(0,10));
+  document.getElementById('dash-active-vendors').textContent = db.vendors.length;
+
+  // Recent entries
+  const recent = [...entries].sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt-a.createdAt).slice(0,5);
+  const rl = document.getElementById('dash-recent-list');
+  if(!recent.length) {
+    rl.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No entries yet</div><div class="empty-desc">Tap + to add your first purchase entry</div></div>`;
+  } else {
+    rl.innerHTML = '<div class="entry-list">' + recent.map(e=>entryHTML(e,true)).join('') + '</div>';
+  }
+
+  // Vendor balances
+  const vbl = document.getElementById('dash-vendor-balances');
+  const vendorsWithBalance = db.vendors.map(v=>({...v, bal: vendorBalance[v.id]||0})).filter(v=>v.bal!==0).sort((a,b)=>b.bal-a.bal);
+  if(!vendorsWithBalance.length) {
+    vbl.innerHTML = '<div class="text-sm text-center" style="padding:12px;color:var(--text3)">All balances clear ✓</div>';
+  } else {
+    vbl.innerHTML = vendorsWithBalance.map(v=>`
+      <div class="vendor-card" onclick="openVendorDetail('${v.id}')">
+        <div class="vendor-avatar">${initials(v.name)}</div>
+        <div class="vendor-info">
+          <div class="vendor-name">${v.name}</div>
+          <div class="vendor-phone">${v.products||'Fertilizer supplier'}</div>
+        </div>
+        <div class="vendor-balance">
+          <div class="vendor-bal-label">${v.bal>0?'You Owe':'Advance'}</div>
+          <div class="vendor-bal-val ${v.bal>0?'bal-negative':'bal-positive'}">${fmt(Math.abs(v.bal))}</div>
+        </div>
+      </div>`).join('');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ENTRY HTML
+// ═══════════════════════════════════════════════════════════════════
+function entryHTML(e, compact=false) {
+  const vname = vendorName(e.vendorId);
+  const isCredit = e.type==='credit';
+  return `
+    <div class="entry-item ${isCredit?'credit':''}">
+      <div class="entry-head">
+        <div>
+          <div class="entry-vendor">${vname}</div>
+          <div class="entry-receipt">🧾 ${e.receiptNo||'—'}</div>
+        </div>
+        <div>
+          <div class="entry-amount ${isCredit?'credit':''}">${isCredit?'-':''}${fmt(e.amount)}</div>
+          <div class="entry-amount-label">${isCredit?'Payment':'Purchase'}</div>
+        </div>
+      </div>
+      <div class="entry-body">
+        <div class="entry-desc">${e.type==='debit'?(e.desc||'—'):(e.paymentNotes||e.desc||'Payment')}</div>
+        <div class="entry-meta">
+          <span class="entry-tag ${isCredit?'tag-credit':'tag-debit'}">${isCredit?'Credit':'Debit'}</span>
+          <span class="entry-date">📅 ${fmtDate(e.date)}</span>
+        </div>
+      </div>
+      ${compact?'':`
+      <div class="entry-actions">
+        <button class="btn btn-blue btn-sm" onclick="viewReceipt('${e.id}')">🧾 Receipt</button>
+        <button class="btn btn-secondary btn-sm" onclick="editEntry('${e.id}')">✏️ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('${e.id}','entry')">🗑</button>
+      </div>`}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LEDGER
+// ═══════════════════════════════════════════════════════════════════
+function renderLedger() {
+  const search = (document.getElementById('ledger-search').value||'').toLowerCase();
+  const fromD  = document.getElementById('filter-from').value;
+  const toD    = document.getElementById('filter-to').value;
+
+  let entries = db.entries.filter(e=>{
+    if(currentVendorFilter !== 'all' && e.vendorId !== currentVendorFilter) return false;
+    if(currentTypeFilter !== 'all' && e.type !== currentTypeFilter) return false;
+    if(fromD && e.date < fromD) return false;
+    if(toD   && e.date > toD)   return false;
+    if(search) {
+      const vname = vendorName(e.vendorId).toLowerCase();
+      if(!vname.includes(search) && !(e.desc||'').toLowerCase().includes(search) && !(e.receiptNo||'').toLowerCase().includes(search) && !(e.notes||'').toLowerCase().includes(search)) return false;
+    }
+    return true;
+  });
+  entries.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt-a.createdAt);
+
+  // Summary bar
+  const sumDebit  = entries.filter(e=>e.type==='debit').reduce((s,e)=>s+parseFloat(e.amount),0);
+  const sumCredit = entries.filter(e=>e.type==='credit').reduce((s,e)=>s+parseFloat(e.amount),0);
+  const sumEl = document.getElementById('ledger-summary');
+  if(entries.length) {
+    sumEl.style.display='block';
+    sumEl.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <span style="font-size:13px;color:var(--text2)">${entries.length} entries</span>
+      <span><strong style="color:var(--red)">Dr: ${fmt(sumDebit)}</strong> &nbsp; <strong style="color:var(--green)">Cr: ${fmt(sumCredit)}</strong></span>
+      <span style="font-weight:700;color:${sumDebit-sumCredit>0?'var(--red)':'var(--green)'}">Net: ${fmt(sumDebit-sumCredit)}</span>
+    </div>`;
+  } else { sumEl.style.display='none'; }
+
+  const ll = document.getElementById('ledger-list');
+  if(!entries.length) {
+    ll.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No entries found</div><div class="empty-desc">Try adjusting your filters</div></div>`;
+  } else {
+    ll.innerHTML = entries.map(e=>entryHTML(e)).join('');
+  }
+
+  // Update vendor filter chips
+  const chips = document.getElementById('vendor-filter-chips');
+  chips.innerHTML = `<div class="chip ${currentVendorFilter==='all'?'active':''}" onclick="setVendorFilter('all',this)">All Vendors</div>` +
+    db.vendors.map(v=>`<div class="chip ${currentVendorFilter===v.id?'active':''}" onclick="setVendorFilter('${v.id}',this)">${v.name}</div>`).join('');
+}
+
+function setVendorFilter(id, el) {
+  currentVendorFilter = id;
+  document.querySelectorAll('#vendor-filter-chips .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderLedger();
+}
+
+function setTypeFilter(type, el) {
+  currentTypeFilter = type;
+  document.querySelectorAll('#page-ledger .chip-row:nth-of-type(3) .chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderLedger();
+}
+
+function clearDateFilter() {
+  document.getElementById('filter-from').value='';
+  document.getElementById('filter-to').value='';
+  renderLedger();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// VENDORS PAGE
+// ═══════════════════════════════════════════════════════════════════
+function renderVendors() {
+  const search = (document.getElementById('vendor-search').value||'').toLowerCase();
+  const vendorBalance = computeVendorBalances();
+  let vendors = db.vendors.filter(v=> !search || v.name.toLowerCase().includes(search) || (v.contact||'').toLowerCase().includes(search));
+
+  const vl = document.getElementById('vendors-list');
+  if(!vendors.length) {
+    vl.innerHTML = `<div class="empty"><div class="empty-icon">🏪</div><div class="empty-title">No vendors yet</div><div class="empty-desc">Add your first vendor</div></div>
+    <button class="btn btn-primary mt-12" onclick="openAddVendor()">+ Add Vendor</button>`;
+    return;
+  }
+
+  vl.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <div class="text-sm">${vendors.length} vendors</div>
+    <button class="btn btn-primary btn-sm" onclick="openAddVendor()">+ Add Vendor</button>
+  </div>` + vendors.map(v=>{
+    const bal = vendorBalance[v.id]||0;
+    return `<div class="vendor-card" onclick="openVendorDetail('${v.id}')">
+      <div class="vendor-avatar">${initials(v.name)}</div>
+      <div class="vendor-info">
+        <div class="vendor-name">${v.name}</div>
+        <div class="vendor-phone">${v.phone?'📞 '+v.phone:''} ${v.products?'| '+v.products:''}</div>
+      </div>
+      <div class="vendor-balance">
+        <div class="vendor-bal-label">${bal>0?'You Owe':bal<0?'Advance':'Settled'}</div>
+        <div class="vendor-bal-val ${bal>0?'bal-negative':bal<0?'bal-positive':'bal-zero'}">${fmt(Math.abs(bal))}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function computeVendorBalances() {
+  const bal = {};
+  db.vendors.forEach(v=>bal[v.id]=0);
+  db.entries.forEach(e=>{
+    if(!bal[e.vendorId]) bal[e.vendorId]=0;
+    bal[e.vendorId] += e.type==='debit' ? parseFloat(e.amount) : -parseFloat(e.amount);
+  });
+  return bal;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// VENDOR DETAIL
+// ═══════════════════════════════════════════════════════════════════
+function openVendorDetail(vendorId) {
+  const v = db.vendors.find(v=>v.id===vendorId);
+  if(!v) return;
+  const bal = computeVendorBalances()[vendorId]||0;
+  const vEntries = db.entries.filter(e=>e.vendorId===vendorId).sort((a,b)=>b.date.localeCompare(a.date));
+  const totalDr = vEntries.filter(e=>e.type==='debit').reduce((s,e)=>s+parseFloat(e.amount),0);
+  const totalCr = vEntries.filter(e=>e.type==='credit').reduce((s,e)=>s+parseFloat(e.amount),0);
+
+  document.getElementById('vd-title').textContent = v.name;
+  document.getElementById('vd-body').innerHTML = `
+    <div class="highlight-box ${bal>0?'red':bal<0?'':''}">
+      <div style="display:flex;justify-content:space-between">
+        <div><div style="font-size:12px;color:var(--text2)">${bal>0?'Outstanding (You Owe)':bal<0?'Advance Paid':'Balance'}</div>
+          <div style="font-size:24px;font-weight:800;color:${bal>0?'var(--red)':bal<0?'var(--green)':'var(--text)'}">${fmt(Math.abs(bal))}</div></div>
+        <div style="text-align:right">
+          <div style="font-size:12px;color:var(--text2)">Dr / Cr</div>
+          <div style="font-size:13px;font-weight:600;color:var(--red)">${fmt(totalDr)}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--green)">${fmt(totalCr)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-group mb-12" style="margin-bottom:12px">
+      <button class="btn btn-primary btn-sm" style="flex:1" onclick="addEntryForVendor('${v.id}')">+ Purchase</button>
+      <button class="btn btn-amber btn-sm" style="flex:1" onclick="addPaymentForVendor('${v.id}')">💰 Payment</button>
+      <button class="btn btn-secondary btn-sm" onclick="editVendor('${v.id}')">✏️</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmDelete('${v.id}','vendor')">🗑</button>
+    </div>
+    ${v.contact?`<div class="text-sm">👤 ${v.contact}</div>`:''}
+    ${v.phone?`<div class="text-sm">📞 ${v.phone}</div>`:''}
+    ${v.address?`<div class="text-sm">📍 ${v.address}</div>`:''}
+    ${v.gst?`<div class="text-sm">🏛 GST: ${v.gst}</div>`:''}
+    ${v.products?`<div class="text-sm">📦 ${v.products}</div>`:''}
+    <div class="divider"></div>
+    <div class="section-title" style="font-size:14px">Transaction History (${vEntries.length})</div>
+    ${!vEntries.length?'<div class="text-sm">No transactions yet</div>':
+      '<div class="entry-list">' + vEntries.map(e=>entryHTML(e)).join('') + '</div>'}
+  `;
+  openDrawer('overlay-vendor-detail');
+}
+
+function addEntryForVendor(vendorId) {
+  closeDrawer('overlay-vendor-detail');
+  setTimeout(()=>{openAddEntry(); document.getElementById('entry-vendor').value=vendorId;},200);
+}
+
+function addPaymentForVendor(vendorId) {
+  closeDrawer('overlay-vendor-detail');
+  setTimeout(()=>{openAddEntry(); document.getElementById('entry-vendor').value=vendorId; setEntryType('credit');},200);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REPORTS
+// ═══════════════════════════════════════════════════════════════════
+function renderReports() {
+  renderMonthlyReport();
+  renderVendorReport();
+  renderProductReport();
+}
+
+function renderMonthlyReport() {
+  const monthMap = {};
+  db.entries.forEach(e=>{
+    const m = monthKey(e.date);
+    if(!monthMap[m]) monthMap[m]={debit:0,credit:0,count:0};
+    if(e.type==='debit') { monthMap[m].debit+=parseFloat(e.amount); monthMap[m].count++; }
+    else monthMap[m].credit+=parseFloat(e.amount);
+  });
+  const months = Object.keys(monthMap).sort().reverse();
+  if(!months.length) { document.getElementById('monthly-report').innerHTML='<div class="text-sm">No data yet</div>'; return; }
+  document.getElementById('monthly-report').innerHTML = months.map(m=>{
+    const d = monthMap[m];
+    const net = d.debit-d.credit;
+    return `<div class="month-card">
+      <div class="month-head" onclick="this.nextSibling.classList.toggle('open')">
+        <div class="month-name">${monthYear(m+'-01')}</div>
+        <div class="month-stats">
+          <div class="month-total">${fmt(d.debit)}</div>
+          <div class="month-count">${d.count} purchases · Paid: ${fmt(d.credit)}</div>
+        </div>
+      </div>
+      <div class="month-body">
+        <table class="sum-table" style="margin:0">
+          <tr><td>Total Purchases</td><td class="amount-col negative">${fmt(d.debit)}</td></tr>
+          <tr><td>Total Payments</td><td class="amount-col positive">${fmt(d.credit)}</td></tr>
+          <tr><td><strong>Outstanding</strong></td><td class="amount-col ${net>0?'negative':'positive'}"><strong>${fmt(net)}</strong></td></tr>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderVendorReport() {
+  const bal = computeVendorBalances();
+  if(!db.vendors.length) { document.getElementById('vendor-report').innerHTML='<div class="text-sm">No vendors yet</div>'; return; }
+  document.getElementById('vendor-report').innerHTML = `
+    <table class="sum-table">
+      <thead><tr><th>Vendor</th><th>Purchases</th><th>Paid</th><th>Balance</th></tr></thead>
+      <tbody>${db.vendors.map(v=>{
+        const dr = db.entries.filter(e=>e.vendorId===v.id&&e.type==='debit').reduce((s,e)=>s+parseFloat(e.amount),0);
+        const cr = db.entries.filter(e=>e.vendorId===v.id&&e.type==='credit').reduce((s,e)=>s+parseFloat(e.amount),0);
+        const b  = bal[v.id]||0;
+        return `<tr><td>${v.name}</td><td class="amount-col">${fmt(dr)}</td><td class="amount-col positive">${fmt(cr)}</td><td class="amount-col ${b>0?'negative':'positive'}">${fmt(b)}</td></tr>`;
+      }).join('')}</tbody>
+    </table>`;
+}
+
+function renderProductReport() {
+  const productMap = {};
+  db.entries.filter(e=>e.type==='debit').forEach(e=>{
+    const desc = (e.desc||'').trim();
+    if(!desc) return;
+    if(!productMap[desc]) productMap[desc]={count:0,total:0};
+    productMap[desc].count++;
+    productMap[desc].total+=parseFloat(e.amount);
+  });
+  const products = Object.entries(productMap).sort((a,b)=>b[1].total-a[1].total).slice(0,20);
+  if(!products.length) { document.getElementById('product-report').innerHTML='<div class="text-sm">No purchase entries yet</div>'; return; }
+  document.getElementById('product-report').innerHTML = `
+    <table class="sum-table">
+      <thead><tr><th>Description</th><th>#</th><th>Total</th></tr></thead>
+      <tbody>${products.map(([desc,d])=>`<tr><td style="max-width:160px;word-break:break-word">${desc}</td><td>${d.count}</td><td class="amount-col">${fmt(d.total)}</td></tr>`).join('')}</tbody>
+    </table>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ADD / EDIT ENTRY
+// ═══════════════════════════════════════════════════════════════════
+let currentEntryType = 'debit';
+
+function openAddEntry() {
+  document.getElementById('entry-drawer-title').textContent = 'New Entry';
+  document.getElementById('entry-id').value = '';
+  document.getElementById('entry-vendor').value = '';
+  document.getElementById('entry-amount').value = '';
+  document.getElementById('entry-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('entry-receipt').value = 'RCP-' + String(db.nextReceiptNum).padStart(4,'0');
+  document.getElementById('entry-desc').value = '';
+  document.getElementById('entry-payment-notes').value = '';
+  document.getElementById('entry-notes').value = '';
+  setEntryType('debit');
+  populateVendorDropdown();
+  openDrawer('overlay-entry');
+}
+
+function editEntry(id) {
+  const e = db.entries.find(e=>e.id===id);
+  if(!e) return;
+  document.getElementById('entry-drawer-title').textContent = 'Edit Entry';
+  document.getElementById('entry-id').value = e.id;
+  document.getElementById('entry-vendor').value = e.vendorId;
+  document.getElementById('entry-amount').value = e.amount;
+  document.getElementById('entry-date').value = e.date;
+  document.getElementById('entry-receipt').value = e.receiptNo||'';
+  document.getElementById('entry-desc').value = e.desc||'';
+  document.getElementById('entry-payment-notes').value = e.paymentNotes||'';
+  document.getElementById('entry-notes').value = e.notes||'';
+  setEntryType(e.type||'debit');
+  populateVendorDropdown();
+  document.getElementById('entry-vendor').value = e.vendorId;
+  openDrawer('overlay-entry');
+}
+
+function setEntryType(type) {
+  currentEntryType = type;
+  const db_btn = document.getElementById('type-debit');
+  const cr_btn = document.getElementById('type-credit');
+  const pg = document.getElementById('product-group');
+  const payg = document.getElementById('payment-group');
+  if(type==='debit') {
+    db_btn.className='btn btn-primary btn-sm'; cr_btn.className='btn btn-secondary btn-sm';
+    pg.style.display=''; payg.style.display='none';
+  } else {
+    db_btn.className='btn btn-secondary btn-sm'; cr_btn.className='btn btn-primary btn-sm';
+    pg.style.display='none'; payg.style.display='';
+  }
+  db_btn.style.flex='1'; cr_btn.style.flex='1';
+}
+
+function populateVendorDropdown() {
+  const sel = document.getElementById('entry-vendor');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Select vendor...</option>' +
+    db.vendors.map(v=>`<option value="${v.id}">${v.name}</option>`).join('');
+  if(cur) sel.value=cur;
+}
+
+function saveEntry() {
+  const vendorId = document.getElementById('entry-vendor').value;
+  const amount   = parseFloat(document.getElementById('entry-amount').value);
+  const date     = document.getElementById('entry-date').value;
+  const receiptNo= document.getElementById('entry-receipt').value.trim();
+  const desc     = document.getElementById('entry-desc').value.trim();
+  const payNotes = document.getElementById('entry-payment-notes').value.trim();
+  const notes    = document.getElementById('entry-notes').value.trim();
+  const id       = document.getElementById('entry-id').value;
+
+  if(!vendorId) { showToast('Please select a vendor'); return; }
+  if(!amount || amount<=0) { showToast('Please enter a valid amount'); return; }
+  if(!date) { showToast('Please enter a date'); return; }
+  if(currentEntryType==='debit' && !desc) { showToast('Please enter product description'); return; }
+
+  if(id) {
+    const idx = db.entries.findIndex(e=>e.id===id);
+    if(idx>=0) db.entries[idx] = {...db.entries[idx], vendorId, amount, date, receiptNo, desc, paymentNotes:payNotes, notes, type:currentEntryType};
+  } else {
+    db.nextReceiptNum++;
+    db.entries.push({ id:uid(), vendorId, amount, date, receiptNo, desc, paymentNotes:payNotes, notes, type:currentEntryType, createdAt:Date.now() });
+  }
+  saveDB(db);
+  closeDrawer('overlay-entry');
+  showToast(id ? 'Entry updated!' : 'Entry saved!');
+  if(currentPage==='dashboard') renderDashboard();
+  else if(currentPage==='ledger') renderLedger();
+  else if(currentPage==='vendors') renderVendors();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ADD / EDIT VENDOR
+// ═══════════════════════════════════════════════════════════════════
+function openAddVendor() {
+  document.getElementById('vendor-drawer-title').textContent = 'Add Vendor';
+  document.getElementById('vendor-id').value='';
+  document.getElementById('vendor-name').value='';
+  document.getElementById('vendor-contact').value='';
+  document.getElementById('vendor-phone').value='';
+  document.getElementById('vendor-products').value='';
+  document.getElementById('vendor-address').value='';
+  document.getElementById('vendor-gst').value='';
+  document.getElementById('vendor-notes').value='';
+  openDrawer('overlay-vendor');
+}
+
+function editVendor(id) {
+  const v = db.vendors.find(v=>v.id===id);
+  if(!v) return;
+  document.getElementById('vendor-drawer-title').textContent = 'Edit Vendor';
+  document.getElementById('vendor-id').value=v.id;
+  document.getElementById('vendor-name').value=v.name||'';
+  document.getElementById('vendor-contact').value=v.contact||'';
+  document.getElementById('vendor-phone').value=v.phone||'';
+  document.getElementById('vendor-products').value=v.products||'';
+  document.getElementById('vendor-address').value=v.address||'';
+  document.getElementById('vendor-gst').value=v.gst||'';
+  document.getElementById('vendor-notes').value=v.notes||'';
+  closeDrawer('overlay-vendor-detail');
+  setTimeout(()=>openDrawer('overlay-vendor'),200);
+}
+
+function saveVendor() {
+  const name = document.getElementById('vendor-name').value.trim();
+  if(!name) { showToast('Vendor name is required'); return; }
+  const id = document.getElementById('vendor-id').value;
+  const vendorData = {
+    name, contact:document.getElementById('vendor-contact').value.trim(),
+    phone:document.getElementById('vendor-phone').value.trim(),
+    products:document.getElementById('vendor-products').value.trim(),
+    address:document.getElementById('vendor-address').value.trim(),
+    gst:document.getElementById('vendor-gst').value.trim(),
+    notes:document.getElementById('vendor-notes').value.trim(),
+  };
+  if(id) {
+    const idx = db.vendors.findIndex(v=>v.id===id);
+    if(idx>=0) db.vendors[idx]={...db.vendors[idx],...vendorData};
+  } else {
+    db.vendors.push({id:uid(),...vendorData,createdAt:Date.now()});
+  }
+  saveDB(db);
+  closeDrawer('overlay-vendor');
+  showToast(id?'Vendor updated!':'Vendor added!');
+  renderVendors();
+}
+
+function quickAddVendor() {
+  closeDrawer('overlay-entry');
+  setTimeout(()=>openAddVendor(),200);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RECEIPT / PRINT
+// ═══════════════════════════════════════════════════════════════════
+function viewReceipt(id) {
+  const e = db.entries.find(e=>e.id===id);
+  if(!e) return;
+  const v = db.vendors.find(v=>v.id===e.vendorId)||{name:'Unknown'};
+  const s = db.settings;
+  const isCredit = e.type==='credit';
+  document.getElementById('receipt-body').innerHTML = `
+    <div style="text-align:center;padding:8px 0 16px">
+      <div style="font-size:22px">🌱</div>
+      <div style="font-size:16px;font-weight:800">${s.shopName||'FertiLedger'}</div>
+      ${s.address?`<div style="font-size:12px;color:var(--text2)">${s.address}</div>`:''}
+      ${s.phone?`<div style="font-size:12px;color:var(--text2)">📞 ${s.phone}</div>`:''}
+      ${s.gst?`<div style="font-size:11px;color:var(--text3)">GST: ${s.gst}</div>`:''}
+    </div>
+    <div style="border-top:2px dashed #e5e7eb;border-bottom:2px dashed #e5e7eb;padding:12px 0;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;color:var(--text2)">Receipt No.</span>
+        <span style="font-size:13px;font-weight:700">${e.receiptNo||'—'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:12px;color:var(--text2)">Date</span>
+        <span style="font-size:13px;font-weight:700">${fmtDate(e.date)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-size:12px;color:var(--text2)">Type</span>
+        <span class="badge ${isCredit?'badge-red':'badge-green'}">${isCredit?'Payment (Credit)':'Purchase (Debit)'}</span>
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:4px">VENDOR</div>
+      <div style="font-size:15px;font-weight:700">${v.name}</div>
+      ${v.phone?`<div style="font-size:12px;color:var(--text2)">📞 ${v.phone}</div>`:''}
+      ${v.address?`<div style="font-size:12px;color:var(--text2)">📍 ${v.address}</div>`:''}
+    </div>
+    ${(e.desc||e.paymentNotes)?`<div style="margin-bottom:14px">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:4px">${isCredit?'PAYMENT NOTES':'PRODUCTS RECEIVED'}</div>
+      <div style="font-size:13px;line-height:1.5;background:var(--bg);padding:10px;border-radius:8px">${isCredit?e.paymentNotes:e.desc}</div>
+    </div>`:''}
+    ${e.notes?`<div style="margin-bottom:14px"><div style="font-size:11px;color:var(--text2);margin-bottom:4px">NOTES</div><div style="font-size:13px">${e.notes}</div></div>`:''}
+    <div style="background:${isCredit?'var(--red2)':'var(--green3)'};border-radius:10px;padding:16px;text-align:center;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:4px">AMOUNT</div>
+      <div style="font-size:28px;font-weight:800;color:${isCredit?'var(--red)':'var(--green)'}">${fmt(e.amount)}</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" style="flex:1" onclick="printReceipt('${e.id}')">🖨 Print</button>
+      <button class="btn btn-primary" style="flex:1" onclick="editEntry('${e.id}');closeDrawer('overlay-receipt')">✏️ Edit</button>
+    </div>
+  `;
+  openDrawer('overlay-receipt');
+}
+
+function printReceipt(id) {
+  const e = db.entries.find(e=>e.id===id);
+  if(!e) return;
+  const v = db.vendors.find(v=>v.id===e.vendorId)||{name:'Unknown'};
+  const s = db.settings;
+  const isCredit = e.type==='credit';
+  document.getElementById('print-area').innerHTML = `
+    <div class="r-center" style="font-size:16px;font-weight:bold">🌱 ${s.shopName||'FertiLedger'}</div>
+    ${s.address?`<div class="r-center">${s.address}</div>`:''}
+    ${s.phone?`<div class="r-center">Ph: ${s.phone}</div>`:''}
+    ${s.gst?`<div class="r-center">GST: ${s.gst}</div>`:''}
+    <div class="r-line"></div>
+    <div class="r-row"><span>Receipt No:</span><span class="r-bold">${e.receiptNo||'—'}</span></div>
+    <div class="r-row"><span>Date:</span><span>${fmtDate(e.date)}</span></div>
+    <div class="r-row"><span>Type:</span><span>${isCredit?'Payment (Cr)':'Purchase (Dr)'}</span></div>
+    <div class="r-line"></div>
+    <div class="r-bold">Vendor: ${v.name}</div>
+    ${v.phone?`<div>Ph: ${v.phone}</div>`:''}
+    <div class="r-line"></div>
+    ${e.type==='debit'?`<div class="r-bold">Products:</div><div>${e.desc||'—'}</div>`:''}
+    ${e.type==='credit'?`<div class="r-bold">Payment Notes:</div><div>${e.paymentNotes||'—'}</div>`:''}
+    ${e.notes?`<div>Notes: ${e.notes}</div>`:''}
+    <div class="r-line"></div>
+    <div class="r-row r-bold"><span>AMOUNT:</span><span>${fmt(e.amount)}</span></div>
+    <div class="r-line"></div>
+    <div class="r-center" style="font-size:10px">Thank you for your business!</div>
+  `;
+  window.print();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════════════
+function openSettings() {
+  const s = db.settings;
+  document.getElementById('settings-shop-name').value = s.shopName||'';
+  document.getElementById('settings-owner').value     = s.owner||'';
+  document.getElementById('settings-phone').value     = s.phone||'';
+  document.getElementById('settings-address').value   = s.address||'';
+  document.getElementById('settings-gst').value       = s.gst||'';
+  openDrawer('overlay-settings');
+}
+
+function saveSettings() {
+  db.settings = {
+    shopName: document.getElementById('settings-shop-name').value.trim()||'FertiLedger',
+    owner:    document.getElementById('settings-owner').value.trim(),
+    phone:    document.getElementById('settings-phone').value.trim(),
+    address:  document.getElementById('settings-address').value.trim(),
+    gst:      document.getElementById('settings-gst').value.trim(),
+  };
+  saveDB(db);
+  document.getElementById('shopNameDisplay').textContent = db.settings.shopName;
+  closeDrawer('overlay-settings');
+  showToast('Settings saved!');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DELETE / CONFIRM
+// ═══════════════════════════════════════════════════════════════════
+function confirmDelete(id, type) {
+  document.getElementById('dialog-title').textContent = type==='vendor' ? 'Delete Vendor?' : 'Delete Entry?';
+  document.getElementById('dialog-body').textContent  = type==='vendor'
+    ? 'This will delete the vendor and ALL their transactions. This cannot be undone.'
+    : 'This entry will be permanently deleted. This cannot be undone.';
+  document.getElementById('dialog-ok-btn').textContent = 'Delete';
+  deleteCallback = () => {
+    if(type==='vendor') { db.vendors=db.vendors.filter(v=>v.id!==id); db.entries=db.entries.filter(e=>e.vendorId!==id); }
+    else db.entries = db.entries.filter(e=>e.id!==id);
+    saveDB(db);
+    closeDialog();
+    closeDrawer('overlay-vendor-detail');
+    showToast(type==='vendor'?'Vendor deleted':'Entry deleted');
+    renderDashboard(); renderLedger(); renderVendors();
+  };
+  document.getElementById('dialog-confirm').classList.add('open');
+}
+
+function confirmClearAll() {
+  document.getElementById('dialog-title').textContent = 'Clear ALL Data?';
+  document.getElementById('dialog-body').textContent  = 'This will permanently delete ALL vendors, entries and settings. This CANNOT be undone!';
+  document.getElementById('dialog-ok-btn').textContent = 'Clear Everything';
+  deleteCallback = () => { db=defaultDB(); saveDB(db); closeDialog(); closeDrawer('overlay-settings'); showToast('All data cleared'); renderDashboard(); renderVendors(); };
+  document.getElementById('dialog-confirm').classList.add('open');
+}
+
+function dialogCallback() { if(deleteCallback) deleteCallback(); }
+function closeDialog() { document.getElementById('dialog-confirm').classList.remove('open'); deleteCallback=null; }
+
+// ═══════════════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════════════
+function exportData() {
+  const blob = new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='fertiledger-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Backup exported!');
+}
+
+function importData() { document.getElementById('import-file').click(); }
+
+function handleImport(ev) {
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if(!imported.vendors || !imported.entries) { showToast('Invalid backup file'); return; }
+      db = imported;
+      saveDB(db);
+      showToast('Data imported successfully!');
+      renderDashboard(); renderVendors(); renderLedger();
+    } catch { showToast('Error reading file'); }
+  };
+  reader.readAsText(file);
+  ev.target.value='';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DRAWER / OVERLAY UTILS
+// ═══════════════════════════════════════════════════════════════════
+function openDrawer(id)  { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeDrawer(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+
+function closeEntryDrawer(e) {
+  if(e.target===e.currentTarget) closeDrawer(e.currentTarget.id);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+function init() {
+  const s = db.settings;
+  if(s.shopName) document.getElementById('shopNameDisplay').textContent = s.shopName;
+  renderDashboard();
+  // Register service worker for offline support
+  if('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+}
+
+init();
+</script>
+</body>
+</html>
